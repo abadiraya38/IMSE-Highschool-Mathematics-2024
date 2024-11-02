@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High School Mathematics</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background: #007BFF;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: #FFD700; /* Gold color on hover */
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        section {
+            background: white;
+            margin: 10px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0; /* Start hidden */
+            transform: translateY(20px); /* Start below */
+            transition: opacity 0.5s ease, transform 0.5s ease; /* Animation */
+        }
+
+        section.visible {
+            opacity: 1; /* Fade in */
+            transform: translateY(0); /* Move to original position */
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            background: #007BFF;
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        form input, form select {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            transition: border-color 0.3s;
+        }
+
+        form input:focus, form select:focus {
+            border-color: #007BFF; /* Blue border on focus */
+            outline: none;
+        }
+
+        form button {
+            background: #007BFF;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        form button:hover {
+            background: #0056b3; /* Darker blue on hover */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .timer {
+            font-size: 20px;
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 5px 0;
+            transition: background-color 0.3s;
+        }
+
+        .question:hover {
+            background-color: #f0f8ff; /* Light blue on hover */
+        }
+    </style>
+    <script>
+        let timer;
+        let timeLeft = 300; // 5 minutes in seconds
+        let currentExam = null;
+
+        function startTimer() {
+            timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById("timer").innerText = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    alert("Time is up! Submitting your exam.");
+                    document.getElementById("examForm").submit();
+                }
+            }, 1000);
+        }
+
+        function startExam(examNumber) {
+            currentExam = examNumber;
+            document.getElementById("examList").classList.add("hidden");
+            document.getElementById("examContainer").classList.remove("hidden");
+            
+            let questions = '';
+            
+            switch (examNumber) {
+                case 1:
+                    questions = `
+                        <div class="question">
+                            <label for="q1">1. What is the value of π (pi) up to two decimal places?</label>
+                            <input type="text" id="q1" name="q1" required>
+                        </div>
+                        <div class="question">
+                            <label for="q2">2. Solve for x: 2x + 3 = 11</label>
+                            <input type="text" id="q2" name="q2" required>
+                        </div>
+                        <div class="question">
+                            <label for="q3">3. What is the area of a triangle with a base of 5 units and a height of 10 units?</label>
+                            <input type="text" id="q3" name="q3" required>
+                        </div>
+                    `;
+                    break;
+                case 2:
+                    questions = `
+                        <div class="question">
+                            <label for="q1">1. What is the derivative of x²?</label>
+                            <input type="text" id="q1" name="q1" required>
+                        </div>
+                        <div class="question">
+                            <label for="q2">2. Solve for y in the equation 3y - 6 = 0.</label>
+                            <input type="text" id="q2" name="q2" required>
+                        </div>
+                    `;
+                    break;
+                case 3:
+                    questions = `
+                        <div class="question">
+                            <label for="q1">1. What is the area of a circle with radius 7?</label>
+                            <input type="text" id="q1" name="q1" required>
+                        </div>
+                        <div class="question">
+                            <label for="q2">2. If a triangle has sides of length 3, 4, and 5, is it a right triangle?</label>
+                            <input type="text" id="q2" name="q2" required>
+                        </div>
+                    `;
+                    break;
+                default:
+                    questions = '<p>No questions available for this exam.</p>';
+            }
+
+            document.getElementById("examQuestions").innerHTML = questions;
+            startTimer(); // Start the timer when the exam starts
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const sections = document.querySelectorAll("section");
+
+            function checkVisibility() {
+                const triggerBottom = window.innerHeight / 5 * 4;
+
+                sections.forEach(section => {
+                    const sectionTop = section.getBoundingClientRect().top;
+
+                    if (sectionTop < triggerBottom) {
+                        section.classList.add("visible");
+                    }
+                });
+            }
+
+            window.addEventListener("scroll", checkVisibility);
+            checkVisibility(); // Initial check on page load
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>High School Mathematics</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#courses">Courses</a></li>
+                <li><a href="#exams">Online Examinations</a></li>
+                <li><a href="#registration">Student Registration</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home">
+            <h2><a href="#home">Home</a></h2>
+            <p>Welcome to our High School Mathematics program. We offer courses that help students excel in mathematics.</p>
+        </section>
+
+        <section id="about">
+            <h2><a href="#about">About Us</a></h2>
+            <p>We are dedicated to providing high-quality mathematics education to high school students. Our experienced instructors are here to help you succeed.</p>
+        </section>
+
+        <section id="courses">
+            <h2><a href="#courses">Courses</a></h2>
+            <h3>Grade 9 Mathematics</h3>
+            <ul>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade9-number-systems')">Number Systems</a></li>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade9-algebra')">Algebra</a></li>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade9-geometry')">Geometry</a></li>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade9-trigonometry')">Trigonometry</a></li>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade9-statistics')">Statistics and Probability</a></li>
+            </ul>
+            <div id="grade9-number-systems" class="hidden">
+                <h4>Notes on Number Systems</h4>
+                <p>This topic covers rational and irrational numbers, integers, and real numbers. Understanding the properties of these numbers is crucial for solving mathematical problems.</p>
+            </div>
+            <div id="grade9-algebra" class="hidden">
+                <h4>Notes on Algebra</h4>
+                <p>Algebra involves the manipulation of symbols and numbers. Students learn to solve equations, work with inequalities, and understand functions.</p>
+            </div>
+            <div id="grade9-geometry" class="hidden">
+                <h4>Notes on Geometry</h4>
+                <p>Geometry focuses on the properties and relations of points, lines, surfaces, and solids. Topics include angles, triangles, and the Pythagorean theorem.</p>
+            </div>
+            <div id="grade9-trigonometry" class="hidden">
+                <h4>Notes on Trigonometry</h4>
+                <p>This area examines the relationships between the angles and sides of triangles. Key functions such as sine, cosine, and tangent are introduced.</p>
+            </div>
+            <div id="grade9-statistics" class="hidden">
+                <h4>Notes on Statistics and Probability</h4>
+                <p>Students learn to collect, analyze, and interpret data. Concepts of probability help in making predictions based on data.</p>
+            </div>
+
+            <h3>Grade 10 Mathematics</h3>
+            <ul>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade10-advanced-algebra')">Advanced Algebra</a></li>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade10-coordinate-geometry')">Coordinate Geometry</a></li>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade10-trigonometry')">Trigonometry</a></li>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade10-calculus')">Calculus (Introduction)</a></li>
+                <li><a href="javascript:void(0);" onclick="toggleVisibility('grade10-probability')">Probability and Statistics</a></li>
+            </ul>
+            <div id="grade10-advanced-algebra" class="hidden">
+                <h4>Notes on Advanced Algebra</h4>
+                <p>This topic extends basic algebra concepts and introduces polynomials, quadratic equations, and functions.</p>
+            </div>
+            <div id="grade10-coordinate-geometry" class="hidden">
+                <h4>Notes on Coordinate Geometry</h4>
+                <p>Students learn to analyze geometric shapes using a coordinate system. Concepts include distance, midpoint, and the slope of a line.</p>
+            </div>
+            <div id="grade10-trigonometry" class="hidden">
+                <h4>Notes on Trigonometry</h4>
+                <p>Continuing from Grade 9, students explore more complex applications of trigonometric functions and identities.</p>
+            </div>
+            <div id="grade10-calculus" class="hidden">
+                <h4>Notes on Calculus (Introduction)</h4>
+                <p>This introductory topic covers limits, derivatives, and their applications. It sets the foundation for further studies in calculus.</p>
+            </div>
+            <div id="grade10-probability" class="hidden">
+                <h4>Notes on Probability and Statistics</h4>
+                <p>This section emphasizes data handling, statistical measures, and the principles of probability to assess risk and chance.</p>
+            </div>
+        </section>
+
+        <section id="exams">
+            <h2><a href="#exams">Online Examinations</a></h2>
+            <h3>Select an Exam</h3>
+            <div id="examList">
+                <h4><a href="javascript:void(0);" onclick="startExam(1)">Exam 1</a></h4>
+                <h4><a href="javascript:void(0);" onclick="startExam(2)">Exam 2</a></h4>
+                <h4><a href="javascript:void(0);" onclick="startExam(3)">Exam 3</a></h4>
+            </div>
+            <div id="examContainer" class="hidden">
+                <p id="timer" class="timer">Time left: 5:00</p>
+                <form id="examForm" onsubmit="clearInterval(timer); return true;">
+                    <div id="examQuestions"></div>
+                    <button type="button" onclick="startTimer()">Start Exam</button>
+                    <button type="submit">Submit Exam</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="registration">
+            <h2><a href="#registration">Student Registration</a></h2>
+            <form>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="address" required>
+
+                <label for="course">Select Course(s):</label>
+                <select id="course" name="course" required>
+                    <option value="grade9">Grade 9 Mathematics</option>
+                    <option value="grade10">Grade 10 Mathematics</option>
+                    <option value="both">Both</option>
+                </select>
+
+                <label for="payment">Payment Options:</label>
+                <select id="payment" name="payment" required>
+                    <option value="creditCard">Credit/Debit Card</option>
+                    <option value="mobileMoney">Mobile Money</option>
+                    <option value="other">Other Payment Methods</option>
+                </select>
+
+                <button type="submit">Register</button>
+            </form>
+        </section>
+
+        <section id="contact">
+            <h2><a href="#contact">Contact Us</a></h2>
+            <p>If you have any questions, feel free to reach out to us at:</p>
+            <ul>
+                <li><a href="mailto:info@highschoolmath.com">info@highschoolmath.com</a></li>
+                <li>Phone: +1 (555) 123-4567</li>
+                <li>Address: 123 Math St, Educational City, ST 12345</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 High School Mathematics</p>
+    </footer>
+</body>
+</html>
